@@ -1,0 +1,14 @@
+{
+  "name": "goodreads-to-obsidian",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Peter Peerdeman <peter@peterpeerdeman.nl> (https://peterpeerdeman.nl/)",
+  "license": "ISC",
+  "dependencies": {
+    "csv-parser": "^3.0.0"
+  }
+}
