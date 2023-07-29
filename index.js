@@ -1,11 +1,12 @@
 const fs = require("fs");
 const csv = require("csv-parser");
 const path = require("path");
+const sanitize = require("sanitize-filename");
+const fuzzball = require("fuzzball");
 
 fs.createReadStream("goodreads_library_export.csv")
   .pipe(csv())
   .on("data", (row) => {
-    // Create a markdown file for each book
     if (row["Exclusive Shelf"] != "read") {
       return;
     }
@@ -24,11 +25,24 @@ rating: ${row["My Rating"] || "No rating given"}
 ${row["My Review"] || "No review available"}
 `;
 
-    const filePath = path.join(__dirname, `${row["Title"]}.md`);
+    const cleanTitle = sanitize(row["Title"]);
+    const directoryPath = __dirname;
+    const files = fs.readdirSync(directoryPath);
+    const similarFiles = files.filter(
+      (file) => fuzzball.ratio(cleanTitle, file) > 60
+    ); // Adjust ratio as needed
+
+    let filePath;
+    if (similarFiles.length > 0) {
+      console.log(`Similar file found: ${cleanTitle} == ${similarFiles[0]}`);
+      filePath = path.join(directoryPath, similarFiles[0]);
+    } else {
+      filePath = path.join(directoryPath, `${cleanTitle}.md`);
+    }
+
     if (fs.existsSync(filePath)) {
       fs.readFile(filePath, "utf8", function (err, data) {
         if (err) throw err;
-        // Check if the existing file already contains a frontmatter block
         if (!data.startsWith("---")) {
           const newContent = mdContent + "\n" + data;
           fs.writeFile(filePath, newContent, (err) => {
@@ -49,10 +63,6 @@ ${row["My Review"] || "No review available"}
         console.log(`Markdown file for book ${row["Title"]} has been created.`);
       });
     }
-    // fs.writeFile(`${row["Title"]}.md`, mdContent, (err) => {
-    //   if (err) throw err;
-    //   console.log(`Markdown file for book ${row["Book Id"]} has been created.`);
-    // });
   })
   .on("end", () => {
     console.log("CSV file successfully processed");

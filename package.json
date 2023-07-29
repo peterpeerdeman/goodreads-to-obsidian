@@ -9,6 +9,8 @@
   "author": "Peter Peerdeman <peter@peterpeerdeman.nl> (https://peterpeerdeman.nl/)",
   "license": "ISC",
   "dependencies": {
-    "csv-parser": "^3.0.0"
+    "csv-parser": "^3.0.0",
+    "fuzzball": "^2.1.2",
+    "sanitize-filename": "^1.6.3"
   }
 }
